@@ -91,6 +91,13 @@ func _closed(was_clean = false):
 	while not connected:
 		connectToDatabase()
 		yield(get_tree().create_timer(2), "timeout")
+	list = yield(getDatabase(), "completed")
+	for key in list:
+		if not fetchedData.has(key):
+			fetchedData[key] = yield(getData(key), "completed")
+	for key in fetchedData.keys():
+		if not key in list:
+			fetchedData.erase(key)
 
 func _on_data():
 	var data = JSON.parse(peer.get_peer(1).get_packet().get_string_from_utf8()).result
